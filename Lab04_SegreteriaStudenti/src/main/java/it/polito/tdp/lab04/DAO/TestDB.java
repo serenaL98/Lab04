@@ -10,8 +10,7 @@ public class TestDB {
 		
 		CorsoDAO cdao = new CorsoDAO();
 		cdao.getTuttiICorsi();
-		
-		
+
 	}
 
 }
