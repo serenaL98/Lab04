@@ -166,34 +166,28 @@ public class CorsoDAO {
 	}
 	
 	//cerca studente nel db
-	public Studente getStudente(Studente studente) {
+	public Studente getStudente(String matricola) {
 		
 		final String sql = "SELECT studente.* FROM studente WHERE studente.matricola =?";
+		Studente studente = null;
 		
 		try {
 			Connection conn = ConnectDB.getConnection();
 			PreparedStatement ps = conn.prepareStatement(sql);
-			ps.setString(1, studente.getMatricola());
+			ps.setString(1, matricola);
+			
 			ResultSet rs = ps.executeQuery();
 			
-			while(rs.next()) {
-				studente.setCds(rs.getString("cds"));
-				studente.setCognome(rs.getString("cognome"));
-				studente.setNome(rs.getString("nome"));
+			if(rs.next()) {
+				studente= new Studente(matricola, rs.getString("nome"), rs.getString("cognome"), rs.getString("cds"));
 			}
 			
 			conn.close();
 			
-			if(studente.getCognome()==null) {
-				throw new NullPointerException("Nessun corso per quello studente.");
-			}
-			
-			return studente;
-			
 		}catch(SQLException e) {
 			throw new RuntimeException("Errore nel db.", e);
 		}
-		
+		return studente;
 	}
 
 	/*
@@ -202,7 +196,8 @@ public class CorsoDAO {
 	public boolean inscriviStudenteACorso(Studente studente, Corso corso) {
 		// TODO
 		// ritorna true se l'iscrizione e' avvenuta con successo
-		final String sql = "INSERT INTO iscrizione(matricola, codins) VALUES (?, ?)";
+		final String sql = "INSERT INTO iscrizione (matricola, codins) VALUES (?, ?) ";
+		boolean aggiunto =false;
 		
 		try {
 			Connection conn = ConnectDB.getConnection();
@@ -214,14 +209,16 @@ public class CorsoDAO {
 			Integer rs = st.executeUpdate();
 			
 			if(rs == 1) {
-				return true;
+				aggiunto= true;
 			}
+			
+			conn.close();
 			
 		}catch(SQLException e) {
 			throw new RuntimeException("Errore nell'inserimento dei dati nel db!");
 		}
 		
-		return false;
+		return aggiunto;
 	}
 
 }

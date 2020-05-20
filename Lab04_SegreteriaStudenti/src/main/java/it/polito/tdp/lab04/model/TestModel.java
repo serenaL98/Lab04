@@ -27,7 +27,7 @@ public class TestModel {
 		System.out.println("-------------------------------------------------------------------------");
 		
 		Studente stu = new Studente("146101", null, null, null);
-		System.out.println(model.getStudente(stu).toString());
+		System.out.println(model.getStudente("146101").toString());
 
 	}
 

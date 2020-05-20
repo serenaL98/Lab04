@@ -61,19 +61,36 @@ public class FXMLController {
     	
     	Corso corso = this.boxCorsi.getValue();
     	String matricola = this.txtMatricola.getText();
-    	List<Studente> studCorso = new LinkedList<Studente>(this.model.getStudentiPerCorso(corso));
+    	Studente studente = model.getStudente(matricola);
     	
-    	for(Studente s: studCorso) {
-    		if(s.getMatricola().equals(matricola)) {
-    			txtRisultato.setText("Studente gia' iscritto al corso.\n");
+    	//soluzione prof
+    	try {
+    		if(matricola.isEmpty()) {
+    			txtRisultato.setText("Inserire una matricola.");
+    			return;
+    		}
+    		if(corso == null) {
+    			txtRisultato.setText("Inserire un corso.");
+    			return;
+    		}
+    		if(studente == null) {
+    			txtRisultato.appendText("Matricola inesistente.");
+    			return;
+    		}
+    		if(!model.iscriviStudenteACorso(studente, corso)) {
+    			txtRisultato.appendText("Errore nell'iscrizione al corso");
+    			return;
     		}
     		else {
-    			boolean iscrivi = this.model.iscriviStudenteACorso(s, corso);
-    			if(iscrivi == true) {
-    				txtRisultato.setText("Studente iscritto al corso!");
-    			}
+    			txtRisultato.appendText("Studente iscritto al corso!");
     		}
-    			
+    	}catch(NumberFormatException e) {
+    		txtRisultato.setText("Inserire una matricola nel formato corretto.");
+    	}/*catch(RuntimeException e) {
+    		txtRisultato.setText("ERRORE DI CONNESSIONE AL DATABASE!");
+    	}*/
+    	catch(IllegalStateException i) {
+    		txtRisultato.setText(i.getMessage()+"\n");
     	}
 
     }
@@ -85,7 +102,6 @@ public class FXMLController {
     	try {
     	//leggo la matricola
     	String leggimatricola = txtMatricola.getText();
-    	txtMatricola.clear();
     	
     	List <Corso> corsiStudente = new LinkedList<Corso>();
     	
@@ -115,14 +131,14 @@ public class FXMLController {
     	//pulisco il resto di risposta
     	txtRisultato.clear();
     	
+    	txtNome.clear();
+    	txtCognome.clear();
+    	
     	try {
     	//leggo il corso dalla tendina
     	Corso leggiCorso = boxCorsi.getValue();
-    	
-    	//List<Studente> stud = new LinkedList<Studente>(this.model.getStudentiPerCorso(leggiCorso));
-    	
+    	    	
     	String elenco ="";
-    	//for(Studente s: stud) {
     	for(Studente s: this.model.getStudentiPerCorso(leggiCorso)) {
     		elenco+= s.toString()+"\n";
     	}
@@ -138,6 +154,10 @@ public class FXMLController {
     @FXML
     void doNomeCognome(ActionEvent event) {
 
+    	txtRisultato.clear();
+    	txtNome.clear();
+    	txtCognome.clear();
+    	
     	String leggimatricola = txtMatricola.getText();
     	
     	for( int i=0; i<leggimatricola.length(); i++) {
@@ -147,10 +167,11 @@ public class FXMLController {
     	}
     	
     	Studente daCercare = this.model.dammiCredenziali(leggimatricola);
-    	Studente esiste = this.model.getStudente(daCercare);
+    	Studente esiste = this.model.getStudente(leggimatricola);
     	
-    	if(esiste.getNome().equals(null)) {
+    	if(esiste.getNome()==null) {
     		txtRisultato.appendText("Non esiste uno studente con questa matricola.\n");
+    		return;
     	}
     	
     	txtNome.setText(daCercare.getNome());
@@ -160,7 +181,11 @@ public class FXMLController {
 
     @FXML
     void doReset(ActionEvent event) {
-
+    	txtMatricola.clear();
+    	txtNome.clear();
+    	txtCognome.clear();
+    	txtRisultato.clear();
+    	boxCorsi.getSelectionModel().clearSelection();
     }
 
     @FXML

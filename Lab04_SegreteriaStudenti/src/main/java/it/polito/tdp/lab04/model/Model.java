@@ -57,11 +57,15 @@ public class Model {
 		return daoC.getCorsiPerStudente(studente);
 	}
 	
-	public Studente getStudente(Studente studente) {
-		return daoC.getStudente(studente);
+	public Studente getStudente(String matricola) {
+		return daoC.getStudente(matricola);
 	}
 	
 	public boolean iscriviStudenteACorso(Studente studente, Corso corso) {
+		List <Studente> studenti = daoC.getStudentiIscrittiAlCorso(corso);
+		if(studenti.contains(studente)) {
+			throw new IllegalStateException("Utente gia' iscritto al corso!");
+		}
 		return daoC.inscriviStudenteACorso(studente, corso);
 	}
 	
